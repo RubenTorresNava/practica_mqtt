@@ -3,6 +3,7 @@ import Paho from "paho-mqtt";
 import { useState, useEffect } from "react";
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, Button, View } from 'react-native';
+import { SafeAreaView, TextInput } from "react-native-web";
 
 client = new Paho.Client(
   "broker.hivemq.com",
@@ -13,6 +14,7 @@ client = new Paho.Client(
 export default function App() {
 
   const [value, setValue] = useState(0);
+  const [limite, setLimite] = useState(15);
 
   function onMessage(message) {
     if (message.destinationName === "pruebapordiossal")
@@ -49,11 +51,25 @@ export default function App() {
     console.log("Message sent!");
   }
 
+  function definirLimite(v) {
+    const message = new Paho.Message(v.toString());
+    message.destinationName = "limiteTempRuben";
+    client.send(message);
+    console.log("Message sent!");
+    
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>valor recibido: {value}</Text>
+    <SafeAreaView style={styles.container}>
+      <TextInput
+        keyboardType="numeric"
+        style={styles.input}
+        onChangeText={setLimite}
+      />
+      <Button title="Cambiar valor" onPress={() => definirLimite(limite)} />
+      <Text>Temperatura: {value}</Text>
       <StatusBar style="auto" />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -63,5 +79,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  input: {
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
   },
 });
